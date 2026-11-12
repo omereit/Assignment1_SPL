@@ -15,7 +15,6 @@ Playlist::~Playlist() {
 
     //EITAN - DTOR
     PlaylistNode* current = head;
-        
     while(current){
         PlaylistNode* next = current->next;
 

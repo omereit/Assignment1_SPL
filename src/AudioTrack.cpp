@@ -9,7 +9,7 @@ AudioTrack::AudioTrack(const std::string& title, const std::vector<std::string>&
       waveform_data(nullptr), waveform_size(waveform_samples) {
 
     // Allocate memory for waveform analysis
-    waveform_data = new double[waveform_size];
+    waveform_data = new double[waveform_size]; //allcoated on the heap
 
     // Generate some dummy waveform data for testing
     std::random_device rd;
@@ -36,15 +36,34 @@ AudioTrack::~AudioTrack() {
     std::cout << "AudioTrack destructor called for: " << title << std::endl;
     #endif
     // Your code here...
+    //Eitan: DTOR
+    delete[] waveform_data;
+    //end
+
 }
 
 AudioTrack::AudioTrack(const AudioTrack& other)
+    : title(other.title),
+      artists(other.artists),
+      duration_seconds(other.duration_seconds),
+      bpm(other.bpm),
+      waveform_data(nullptr),
+      waveform_size(other.waveform_size)
 {
     // TODO: Implement the copy constructor
     #ifdef DEBUG
     std::cout << "AudioTrack copy constructor called for: " << other.title << std::endl;
     #endif
     // Your code here...
+    //Eitan: COPY CONSTRUCTOR 
+    if (waveform_size > 0) {
+        waveform_data = new double[waveform_size];
+
+        for (size_t i = 0; i < waveform_size; ++i) {
+            waveform_data[i] = other.waveform_data[i];
+        }
+    }
+    //end
 }
 
 AudioTrack& AudioTrack::operator=(const AudioTrack& other) {
@@ -53,15 +72,60 @@ AudioTrack& AudioTrack::operator=(const AudioTrack& other) {
     std::cout << "AudioTrack copy assignment called for: " << other.title << std::endl;
     #endif
     // Your code here...
+
+    //Eitan: COPY ASSIGNMENT
+
+    // Handle self-assignment
+    if (this == &other) {
+        return *this;
+    }
+
+    
+    std::string new_title(other.title);
+    std::vector<std::string> new_artists(other.artists);
+
+    
+    double* new_waveform = nullptr;
+    
+    if (other.waveform_size > 0 && other.waveform_data != nullptr) {
+        new_waveform = new double[other.waveform_size];
+
+        for (size_t i = 0; i < other.waveform_size; ++i) {
+            new_waveform[i] = other.waveform_data[i];
+        }
+    }
+
+    delete[] waveform_data;
+
+    waveform_data = new_waveform;
+    title.swap(new_title);
+    artists.swap(new_artists);
+    duration_seconds = other.duration_seconds;
+    bpm = other.bpm;
+    waveform_size = other.waveform_size;
+    //end 
     return *this;
 }
 
-AudioTrack::AudioTrack(AudioTrack&& other) noexcept {
-    // TODO: Implement the move constructor
+AudioTrack::AudioTrack(AudioTrack&& other) noexcept
+    : title(std::move(other.title)),
+      artists(std::move(other.artists)),
+      duration_seconds(other.duration_seconds),
+      bpm(other.bpm),
+      waveform_data(other.waveform_data),
+      waveform_size(other.waveform_size)
+{
     #ifdef DEBUG
-    std::cout << "AudioTrack move constructor called for: " << other.title << std::endl;
+    std::cout << "AudioTrack move constructor called for: "
+              << title << std::endl;
     #endif
-    // Your code here...
+
+    //Eitan - MOVE CONSTURCTOR
+    other.duration_seconds = 0;
+    other.bpm = 0;
+    other.waveform_data = nullptr;
+    other.waveform_size = 0;
+    //end
 }
 
 AudioTrack& AudioTrack::operator=(AudioTrack&& other) noexcept {
@@ -71,6 +135,27 @@ AudioTrack& AudioTrack::operator=(AudioTrack&& other) noexcept {
     std::cout << "AudioTrack move assignment called for: " << other.title << std::endl;
     #endif
     // Your code here...
+
+    //Eitan: MOVE ASSIGNMENT
+
+    // Handle self-assignment
+    if (this == &other) {
+        return *this;
+    }
+
+    delete[] waveform_data;
+
+    waveform_data = other.waveform_data;
+    other.waveform_data = nullptr;
+    title = std::move(other.title);
+    artists = std::move(other.artists);
+    duration_seconds = other.duration_seconds;
+    other.duration_seconds = 0;
+    bpm = other.bpm;
+    other.bpm = 0;
+    waveform_size = other.waveform_size;
+    other.waveform_size = 0;
+
     return *this;
 }
 
