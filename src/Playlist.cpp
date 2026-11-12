@@ -12,6 +12,22 @@ Playlist::~Playlist() {
     #ifdef DEBUG
     std::cout << "Destroying playlist: " << playlist_name << std::endl;
     #endif
+
+    //EITAN - DTOR
+    PlaylistNode* current = head;
+        
+    while(current){
+        PlaylistNode* next = current->next;
+
+        delete current->track;
+        delete current;
+
+        current = next;
+    }
+
+    head = nullptr;
+    track_count = 0;
+    //Eitan - end
 }
 
 void Playlist::add_track(AudioTrack* track) {
@@ -49,6 +65,11 @@ void Playlist::remove_track(const std::string& title) {
         } else {
             head = current->next;
         }
+
+        //Eitan - remove from heap
+        delete current->track;
+        delete current;
+        //end
 
         track_count--;
         std::cout << "Removed '" << title << "' from playlist" << std::endl;
